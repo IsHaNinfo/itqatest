@@ -13,12 +13,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y default-jre  # Install Java Runtime Environment (JRE)
 
-      # Set up the directory to store the .jar file
-      - name: Set up directory for JAR file
-        run: |
-          mkdir -p demo-backend  # Create a directory for the .jar file
-          echo "Copying the jar file to the working directory"
-          cp demo-0.0.1-SNAPSHOT.jar demo-backend/  # Copy the .jar file to the new directory
 
       # Start the backend by running the .jar file in the background
       - name: Start Backend (Run .jar file)
