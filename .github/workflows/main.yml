@@ -51,11 +51,11 @@ jobs:
           pkill -f 'java -jar demo-backend/demo-0.0.1-SNAPSHOT.jar' || true
 
       # Step 7: Create a report directory for test results
-      - name: Create Report Directory
+      - name: Prepare GitHub Pages Directory
         if: always()
         run: |
           mkdir -p results/github-pages
-          cp results/results.html results/github-pages/index.html || true
+          cp results/result.html results/github-pages/index.html || true
 
       # Step 8: Create gh-pages branch if it doesn't exist
       - name: Create gh-pages Branch if Needed
@@ -74,37 +74,39 @@ jobs:
         uses: actions/configure-pages@v3
 
       # Step 10: Upload artifacts for GitHub Pages
-      - name: Upload Artifact
+      - name: Deploy GitHub Pages
         if: always()
-        uses: actions/upload-pages-artifact@v2
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          path: 'results/github-pages'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: results/github-pages
+          user_name: "ishaninfo"
+          user_email: "ishaninfo56@gmail.com"
 
-      # Step 11: Fetch Allure history
+      # Step 11: Fetch Allure history (optional if needed for Allure integration)
       - name: Get Allure history
         uses: actions/checkout@v4
         if: always()
         with:
-          ref: main
-          path: allure
+          ref: gh-pages
+          path: allure-history
 
       # Step 12: Generate Allure Report
       - name: Generate Allure Report
         if: always()
         uses: simple-elf/allure-report-action@master
         with:
-          allure_results: allure-results
-          gh_pages: allure
+          allure_results: Cypress_Cucumber_Test/allure-results
+          gh_pages: allure-history
 
-      # Step 13: Deploy Allure report to GitHub Pages
+      # Step 13: Deploy Allure Report to GitHub Pages
       - name: Deploy Allure Report
         if: always()
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: allure  # Set to main branch
-          publish_dir: Cypress_Cucumber_Test/allure-results 
+          publish_branch: gh-pages
+          publish_dir: allure-history
           user_name: "ishaninfo"
           user_email: "ishaninfo56@gmail.com"
-           # Set the path to the correct directory
-
