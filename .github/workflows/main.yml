@@ -13,5 +13,4 @@ jobs:
         with:
          working-directory: Cypress_Cucumber_Test
          install-command: npm install
-         build: npm run build
          start: npx cypress run
