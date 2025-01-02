@@ -80,7 +80,7 @@ jobs:
         with:
           path: 'results/github-pages'
 
-      # Step 11: Deploy to GitHub Pages
+      # Step 11: Deploy to GitHub Page
       - name: Deploy Allure Report to GitHub Pages
         if: always()
         id: deployment
