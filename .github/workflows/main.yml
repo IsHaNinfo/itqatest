@@ -1,14 +1,9 @@
-name: End-to-end tests
-
-on: push
-permissions:
-  contents: write
-  pages: write
-  id-token: write
-
 jobs:
-  cypress-run:
+  deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages # Add this line
+
     steps:
       # Step 1: Checkout the code
       - name: Checkout
@@ -37,7 +32,7 @@ jobs:
         with:
           working-directory: Cypress_Cucumber_Test
           install-command: npm install
-          start: npm start
+          start: npx cypress run
         continue-on-error: true
 
       # Step 6: Stop the backend after the tests
