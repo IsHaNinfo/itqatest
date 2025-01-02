@@ -41,7 +41,7 @@ jobs:
         with:
           working-directory: Cypress_Cucumber_Test
           install-command: npm install
-          start: npm start
+          start: npx cypress run
         continue-on-error: true
 
       # Step 6: Stop the backend after the tests
