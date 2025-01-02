@@ -1,57 +1,56 @@
 name: End-to-end tests
+
 on: push
+
 jobs:
   cypress-run:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
+      # Step 1: Checkout the code
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Install Java Runtime Environment to run the .jar file
+      # Step 2: Install Java Runtime Environment to run the .jar file
       - name: Install Java
         run: |
           sudo apt-get update
-          sudo apt-get install -y default-jre  # Install Java Runtime Environment (JRE)
+          sudo apt-get install -y default-jre
 
-
-
-      # Start the backend by running the .jar file in the background
-      - name: Start Backend (Run .jar file)
+      # Step 3: Start the backend by running the .jar file in the background
+      - name: Start Backend
         run: |
-          nohup java -jar demo-backend/demo-0.0.1-SNAPSHOT.jar &  # Run backend in the background
+          nohup java -jar demo-backend/demo-0.0.1-SNAPSHOT.jar > backend.log 2>&1 &
 
-      # Install npm dependencies and run Cypress tests
+      # Step 4: Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20.15'
+          node-version: '20'
 
-      - name: Cypress run
+      # Step 5: Install dependencies and run Cypress tests
+      - name: Cypress Run
         uses: cypress-io/github-action@v6
         with:
           working-directory: Cypress_Cucumber_Test
           install-command: npm install
-          start: npx cypress run
-        continue-on-error: true  # Allow tests to fail without stopping the workflow
+          start: npm start
+        continue-on-error: true
 
-      # Wait for Cypress tests to finish
-      - name: Wait for Cypress tests to finish
+      # Step 6: Stop the backend after the tests
+      - name: Stop Backend
+        if: always()
         run: |
-          echo "Waiting for Cypress tests to complete..."
-          sleep 30  # Adjust the time as needed for tests to complete
+          pkill -f 'java -jar demo-backend/demo-0.0.1-SNAPSHOT.jar' || true
 
-      # Stop the backend after the tests are complete
-      - name: Stop Backend (optional)
-        run: |
-          pkill -f 'java -jar demo-backend/demo-0.0.1-SNAPSHOT.jar'  # Kill the backend process
-
-        name: Create Report Directory
+      # Step 7: Create a report directory for test results
+      - name: Create Report Directory
         if: always()
         run: |
           mkdir -p target/github-pages
           cp target/cucumber-reports.html target/github-pages/index.html || true
 
-      - name: Create gh-pages branch if needed
+      # Step 8: Create gh-pages branch if it doesn't exist
+      - name: Create gh-pages Branch if Needed
         run: |
           if ! git ls-remote --heads origin gh-pages; then
             git checkout --orphan gh-pages
@@ -61,19 +60,19 @@ jobs:
             git checkout -
           fi
 
+      # Step 9: Set up GitHub Pages
       - name: Setup Pages
         if: always()
         uses: actions/configure-pages@v3
 
-      - name: Upload artifact
+      # Step 10: Upload artifacts for GitHub Pages
+      - name: Upload Artifact
         if: always()
         uses: actions/upload-pages-artifact@v2
         with:
           path: 'target/github-pages'
 
+      # Step 11: Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         if: always()
-        id: deployment
         uses: actions/deploy-pages@v2
-       
-
