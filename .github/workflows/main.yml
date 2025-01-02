@@ -18,7 +18,5 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
          working-directory: Cypress_Cucumber_Test
-         install-command: 
-                          rm -rf node_modules
-                          npm install
+         install-command: npm install
          start: npx cypress run
