@@ -1,90 +1,16 @@
-name: End-to-end tests
+name: Cypress Tests
 
-on: push
-
-permissions:
-  contents: write
-  pages: write
-  id-token: write
+on: [push]
 
 jobs:
-  deploy:
+  cypress-run:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-
     steps:
-      # Step 1: Checkout the code
       - name: Checkout
-        uses: actions/checkout@v4
-
-      # Step 2: Install Java Runtime Environment to run the .jar file
-      - name: Install Java
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y default-jre
-
-      # Step 3: Start the backend by running the .jar file in the background
-      - name: Start Backend
-        run: |
-          nohup java -jar demo-backend/demo-0.0.1-SNAPSHOT.jar > backend.log 2>&1 &
-
-      # Step 4: Set up Node.js
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/checkout@v2
+      # Install NPM dependencies, cache them correctly
+      # and run all Cypress tests
+      - name: Cypress run
+        uses: cypress-io/github-action@v4.2.0 # use the explicit version number
         with:
-          node-version: '20'
-
-      # Step 5: Install dependencies and run tests
-      - name: Install Dependencies
-        run: npm install --prefix Cypress_Cucumber_Test
-      
-      - name: Install Allure Cypress Plugin
-        run:  npm install -D allure-cypress
-
-      - name: Run Cypress Tests
-        run: |
-          npx cypress run 
-          npx allure generate allure-results --clean -o allure-report
-
-      # Step 6: Stop the backend after the tests
-      - name: Stop Backend
-        if: always()
-        run: |
-          pkill -f 'java -jar demo-backend/demo-0.0.1-SNAPSHOT.jar' || true
-
-      # Step 7: Create a report directory for GitHub Pages
-      - name: Prepare Allure Report for Deployment
-        if: always()
-        run: |
-          mkdir -p results/github-pages
-          cp -r Cypress_Cucumber_Test/allure-results results/github-pages/
-
-      # Step 8: Create gh-pages branch if it doesn't exist
-      - name: Create gh-pages Branch if Needed
-        run: |
-          if ! git ls-remote --heads origin gh-pages; then
-            git checkout --orphan gh-pages
-            git reset --hard
-            git commit --allow-empty -m "Initial gh-pages branch"
-            git push origin gh-pages
-            git checkout -
-          fi
-
-      # Step 9: Set up GitHub Pages
-      - name: Setup Pages
-        if: always()
-        uses: actions/configure-pages@v3
-
-      # Step 10: Upload Allure Report to GitHub Pages
-      - name: Upload Allure Report
-        if: always()
-        uses: actions/upload-pages-artifact@v2
-        with:
-          path: 'results/github-pages'
-
-      # Step 11: Deploy to GitHub Page
-      - name: Deploy Allure Report to GitHub Pages
-        if: always()
-        id: deployment
-        uses: actions/deploy-pages@v2
+          command: npm run cypress:execution
