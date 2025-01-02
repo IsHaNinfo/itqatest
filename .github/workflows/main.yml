@@ -46,8 +46,8 @@ jobs:
       - name: Create Report Directory
         if: always()
         run: |
-          mkdir -p target/github-pages
-          cp target/cucumber-reports.html target/github-pages/index.html || true
+          mkdir -p results/github-pages
+          cp results/results.html results/github-pages/index.html || true
 
       # Step 8: Create gh-pages branch if it doesn't exist
       - name: Create gh-pages Branch if Needed
@@ -70,7 +70,7 @@ jobs:
         if: always()
         uses: actions/upload-pages-artifact@v2
         with:
-          path: 'target/github-pages'
+          path: 'results/github-pages'
 
       # Step 11: Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
