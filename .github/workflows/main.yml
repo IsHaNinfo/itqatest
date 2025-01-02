@@ -102,8 +102,8 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: main  # Set to main branch
-          publish_dir: allure-results 
+          publish_branch: allure  # Set to main branch
+          publish_dir: Cypress_Cucumber_Test/allure-results 
           user_name: "ishaninfo"
           user_email: "ishaninfo56@gmail.com"
            # Set the path to the correct directory
