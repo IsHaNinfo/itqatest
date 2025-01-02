@@ -10,7 +10,27 @@ jobs:
         uses: actions/checkout@v2
       # Install NPM dependencies, cache them correctly
       # and run all Cypress tests
-      - name: Cypress run
-        uses: cypress-io/github-action@v4.2.0 # use the explicit version number
+
+      - name: Install Java
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y default-jre
+
+      # Step 3: Start the backend by running the .jar file in the background
+      - name: Start Backend
+        run: |
+          nohup java -jar demo-backend/demo-0.0.1-SNAPSHOT.jar > backend.log 2>&1 &
+
+      # Step 4: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          command: npm run cypress:execution
+          node-version: '20'
+
+       #Step 5: Install dependencies and run Cypress tests
+      - name: Cypress Run
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: Cypress_Cucumber_Test
+          install-command: npm install
+          start: npx cypress run
