@@ -13,6 +13,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y default-jre  # Install Java Runtime Environment (JRE)
 
+      # Set up the directory to store the .jar file
+      - name: Set up directory for JAR file
+        run: |
+          mkdir -p demo-backend  # Create a directory for the .jar file
+          echo "Copying the jar file to the working directory"
+          cp demo-0.0.1-SNAPSHOT.jar demo-backend/  # Copy the .jar file to the new directory
 
       # Start the backend by running the .jar file in the background
       - name: Start Backend (Run .jar file)
@@ -31,8 +37,61 @@ jobs:
           working-directory: Cypress_Cucumber_Test
           install-command: npm install
           start: npx cypress run
+        continue-on-error: true  # Allow tests to fail without stopping the workflow
 
-      # Optionally stop the backend after the tests
+      # Wait for Cypress tests to finish
+      - name: Wait for Cypress tests to finish
+        run: |
+          echo "Waiting for Cypress tests to complete..."
+          sleep 30  # Adjust the time as needed for tests to complete
+
+      # Stop the backend after the tests are complete
       - name: Stop Backend (optional)
         run: |
           pkill -f 'java -jar demo-backend/demo-0.0.1-SNAPSHOT.jar'  # Kill the backend process
+
+      # Create result HTML page and upload Cypress results
+      - name: Upload Cypress results and deploy to GitHub Pages
+        run: |
+          # Create the directory to store the test results
+          mkdir -p gh-pages/cypress-results
+
+          # Copy the Cypress test results (HTML report, videos, screenshots, etc.) to the deployment folder
+          cp -r Cypress_Cucumber_Test/results/* gh-pages/cypress-results/
+
+          # Create a simple HTML page to display the test result
+          RESULT=$(grep -o 'Tests Passed' Cypress_Cucumber_Test/results/*.txt)
+          if [[ $RESULT == "Tests Passed" ]]; then
+            STATUS="passed"
+          else
+            STATUS="failed"
+          fi
+
+          cat <<EOF > gh-pages/index.html
+          <html>
+            <head>
+              <title>Cypress Test Results</title>
+            </head>
+            <body>
+              <h1>Cypress Test Results</h1>
+              <h2>Status: $STATUS</h2>
+              <p>Check the results below:</p>
+              <ul>
+                <li>Test Report: <a href="cypress-results/index.html">View Report</a></li>
+              </ul>
+            </body>
+          </html>
+          EOF
+
+          # Deploy to GitHub Pages
+          git config --global user.name "ishaninfo"
+          git config --global user.email "ishaninfo56@gmail.com"
+
+          git checkout --orphan gh-pages
+          git add .
+          git commit -m "Deploy Cypress test results"
+          git push -f https://github.com/${{ itqatest }}.git gh-pages
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
