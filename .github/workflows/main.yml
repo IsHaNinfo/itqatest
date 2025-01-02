@@ -103,5 +103,8 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: main  # Set to main branch
-          publish_dir: allure-results  # Set the path to the correct directory
+          publish_dir: allure-results 
+          user_name: "ishaninfo"
+          user_email: "ishaninfo56@gmail.com"
+           # Set the path to the correct directory
 
