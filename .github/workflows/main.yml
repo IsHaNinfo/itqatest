@@ -14,6 +14,7 @@ jobs:
           sudo apt-get install -y default-jre  # Install Java Runtime Environment (JRE)
 
 
+
       # Start the backend by running the .jar file in the background
       - name: Start Backend (Run .jar file)
         run: |
@@ -51,10 +52,10 @@ jobs:
           mkdir -p gh-pages/cypress-results
 
           # Copy the Cypress test results (HTML report, videos, screenshots, etc.) to the deployment folder
-          cp -r Cypress_Cucumber_Test gh-pages/cypress-results/
+          cp -r Cypress_Cucumber_Test/results/* gh-pages/cypress-results/
 
           # Create a simple HTML page to display the test result
-          RESULT=$(grep -o 'Tests Passed' Cypress_Cucumber_Test)
+          RESULT=$(grep -o 'Tests Passed' Cypress_Cucumber_Test/results/*.txt)
           if [[ $RESULT == "Tests Passed" ]]; then
             STATUS="passed"
           else
