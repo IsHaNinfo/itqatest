@@ -6,9 +6,26 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      # Install npm dependencies, cache them correctly
-      # and run all Cypress tests
 
+      # Install Java Runtime Environment to run the .jar file
+      - name: Install Java
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y default-jre  # Install Java Runtime Environment (JRE)
+
+      # Set up the directory to store the .jar file
+      - name: Set up directory for JAR file
+        run: |
+          mkdir -p demo-backend  # Create a directory for the .jar file
+          echo "Copying the jar file to the working directory"
+          cp demo-0.0.1-SNAPSHOT.jar demo-backend/  # Copy the .jar file to the new directory
+
+      # Start the backend by running the .jar file in the background
+      - name: Start Backend (Run .jar file)
+        run: |
+          nohup java -jar demo-backend/demo-0.0.1-SNAPSHOT.jar &  # Run backend in the background
+
+      # Install npm dependencies and run Cypress tests
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -17,6 +34,11 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-         working-directory: Cypress_Cucumber_Test
-         install-command: npm install
-         start: npx cypress run
+          working-directory: Cypress_Cucumber_Test
+          install-command: npm install
+          start: npx cypress run
+
+      # Optionally stop the backend after the tests
+      - name: Stop Backend (optional)
+        run: |
+          pkill -f 'java -jar demo-backend/demo-0.0.1-SNAPSHOT.jar'  # Kill the backend process
