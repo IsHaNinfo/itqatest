@@ -1,6 +1,10 @@
 name: End-to-end tests
 
 on: push
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
   cypress-run:
