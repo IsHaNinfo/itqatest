@@ -55,7 +55,7 @@ jobs:
         if: always()
         run: |
           mkdir -p results/github-pages
-          cp -r allure-report/* results/github-pages/
+          cp -r Cypress_Cucumber_Test/allure-results results/github-pages/
 
       # Step 8: Create gh-pages branch if it doesn't exist
       - name: Create gh-pages Branch if Needed
