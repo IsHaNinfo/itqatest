@@ -83,4 +83,5 @@ jobs:
       # Step 11: Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         if: always()
+        id: deployment
         uses: actions/deploy-pages@v2
