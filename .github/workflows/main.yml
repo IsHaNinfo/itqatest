@@ -54,7 +54,7 @@ jobs:
           cp -r Cypress_Cucumber_Test gh-pages/cypress-results/
 
           # Create a simple HTML page to display the test result
-          RESULT=$(grep -o 'Tests Passed' Cypress_Cucumber_Test/results/*.txt)
+          RESULT=$(grep -o 'Tests Passed' Cypress_Cucumber_Test)
           if [[ $RESULT == "Tests Passed" ]]; then
             STATUS="passed"
           else
