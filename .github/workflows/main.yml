@@ -45,48 +45,35 @@ jobs:
         run: |
           pkill -f 'java -jar demo-backend/demo-0.0.1-SNAPSHOT.jar'  # Kill the backend process
 
-      # Create result HTML page and upload Cypress results
-      - name: Upload Cypress results and deploy to GitHub Pages
+        name: Create Report Directory
+        if: always()
         run: |
-          # Create the directory to store the test results
-          mkdir -p gh-pages/cypress-results
+          mkdir -p target/github-pages
+          cp target/cucumber-reports.html target/github-pages/index.html || true
 
-          # Copy the Cypress test results (HTML report, videos, screenshots, etc.) to the deployment folder
-          cp -r Cypress_Cucumber_Test/results/result.html gh-pages/cypress-results/
-
-          # Create a simple HTML page to display the test result
-          RESULT=$(grep -o 'Tests Passed' Cypress_Cucumber_Test/results/result.html)
-          if [[ $RESULT == "Tests Passed" ]]; then
-            STATUS="passed"
-          else
-            STATUS="failed"
+      - name: Create gh-pages branch if needed
+        run: |
+          if ! git ls-remote --heads origin gh-pages; then
+            git checkout --orphan gh-pages
+            git reset --hard
+            git commit --allow-empty -m "Initial gh-pages branch"
+            git push origin gh-pages
+            git checkout -
           fi
 
-          cat <<EOF > gh-pages/index.html
-          <html>
-            <head>
-              <title>Cypress Test Results</title>
-            </head>
-            <body>
-              <h1>Cypress Test Results</h1>
-              <h2>Status: $STATUS</h2>
-              <p>Check the results below:</p>
-              <ul>
-                <li>Test Report: <a href="cypress-results/index.html">View Report</a></li>
-              </ul>
-            </body>
-          </html>
-          EOF
+      - name: Setup Pages
+        if: always()
+        uses: actions/configure-pages@v3
 
-          # Deploy to GitHub Pages
-          git config --global user.name "ishaninfo"
-          git config --global user.email "ishaninfo56@gmail.com"
+      - name: Upload artifact
+        if: always()
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: 'target/github-pages'
 
-          git checkout --orphan gh-pages
-          git add .
-          git commit -m "Deploy Cypress test results"
-          git push -f https://github.com/${{ github.repository }}.git gh-pages
-
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Deploy to GitHub Pages
+        if: always()
+        id: deployment
+        uses: actions/deploy-pages@v2
+       
 
